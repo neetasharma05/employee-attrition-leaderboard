@@ -3,6 +3,11 @@
 ## Project Overview
 This project predicts employee attrition using the IBM HR Analytics dataset.
 
+## 👥 Team Members
+- Neeta Sharma
+- Tanvi Thorat  
+- Omkar Mate
+
 ## Dataset
 - **Source**: IBM HR Analytics
 - **Size**: 1,470 employees, 35 features
