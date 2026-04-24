@@ -41,9 +41,3 @@ python employee_attrition_analysis.py
 
 ## GitHub Repository
 This leaderboard is automatically updated with every submission.
-
-
-## 👥 Team Members
-- Neeta Sharma
-- Tanvi Thorat
-- Omkar Mate
