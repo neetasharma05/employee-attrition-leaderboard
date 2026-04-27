@@ -1,3 +1,8 @@
+"""
+EMPLOYEE ATTRITION PREDICTION - AUTO LEADERBOARD
+Updated version that works locally and auto-pushes to GitHub
+"""
+
 import pandas as pd
 import numpy as np
 import os
@@ -13,7 +18,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 print("=" * 60)
-print("EMPLOYEE ATTRITION PREDICTION WITH AUTO LEADERBOARD")
+print("🎯 EMPLOYEE ATTRITION PREDICTION SYSTEM")
 print("=" * 60)
 
 # ============================================================
@@ -26,8 +31,26 @@ user_name = input("\n📝 Enter your name for the leaderboard: ")
 # ============================================================
 print("\n📂 Loading data...")
 
-df = pd.read_csv("HR-Employee-Attrition-Dataset.csv")
-print(f"✅ Loaded {len(df)} rows, {len(df.columns)} columns")
+# Try multiple possible locations
+possible_paths = [
+    "HR-Employee-Attrition-Dataset.csv",
+    "data/HR-Employee-Attrition-Dataset.csv",
+    "../HR-Employee-Attrition-Dataset.csv"
+]
+
+df = None
+for path in possible_paths:
+    if os.path.exists(path):
+        df = pd.read_csv(path)
+        print(f"✅ Found data at: {path}")
+        break
+
+if df is None:
+    print("❌ Error: Could not find dataset")
+    print("Please make sure HR-Employee-Attrition-Dataset.csv is in this folder")
+    exit()
+
+print(f"📊 Dataset: {len(df)} rows, {len(df.columns)} columns")
 
 # ============================================================
 # STEP 3: PREPARE DATA
@@ -57,7 +80,6 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 print(f"✅ Training: {len(X_train)} samples")
 print(f"✅ Testing: {len(X_test)} samples")
-print(f"📈 Attrition rate: {y.mean()*100:.1f}%")
 
 # ============================================================
 # STEP 4: TRAIN MODELS
@@ -68,12 +90,11 @@ print("=" * 60)
 
 models = {
     'Logistic Regression': LogisticRegression(max_iter=1000, random_state=42),
-    'Random Forest (100 trees)': RandomForestClassifier(n_estimators=100, random_state=42),
+    'Random Forest': RandomForestClassifier(n_estimators=100, random_state=42),
     'Gradient Boosting': GradientBoostingClassifier(n_estimators=100, random_state=42),
-    'KNN (7 neighbors)': KNeighborsClassifier(n_neighbors=7),
+    'KNN': KNeighborsClassifier(n_neighbors=7),
 }
 
-results = []
 best_accuracy = 0
 best_model_name = ""
 best_precision = 0
@@ -107,7 +128,7 @@ print(f"Model: {best_model_name}")
 print(f"Accuracy: {best_accuracy:.4f}")
 
 # ============================================================
-# STEP 5: UPDATE LEADERBOARD CSV
+# STEP 5: UPDATE LEADERBOARD
 # ============================================================
 print("\n" + "=" * 60)
 print("📊 UPDATING LEADERBOARD")
@@ -117,22 +138,25 @@ leaderboard_file = "leaderboard.csv"
 
 if os.path.exists(leaderboard_file):
     leaderboard = pd.read_csv(leaderboard_file)
+    print("✅ Loaded existing leaderboard")
 else:
     leaderboard = pd.DataFrame(columns=[
         'user_id', 'model_name', 'accuracy', 'precision', 
         'recall', 'f1_score', 'submitted_at'
     ])
+    print("✅ Created new leaderboard")
 
-# Remove old entry if exists (update instead of duplicate)
+# Remove old entry if exists
 leaderboard = leaderboard[leaderboard['user_id'] != user_name]
 
+# Add new entry
 new_entry = pd.DataFrame([{
     'user_id': user_name,
     'model_name': best_model_name,
-    'accuracy': best_accuracy,
-    'precision': best_precision,
-    'recall': best_recall,
-    'f1_score': best_f1,
+    'accuracy': round(best_accuracy, 4),
+    'precision': round(best_precision, 4),
+    'recall': round(best_recall, 4),
+    'f1_score': round(best_f1, 4),
     'submitted_at': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 }])
 
@@ -140,34 +164,52 @@ leaderboard = pd.concat([leaderboard, new_entry], ignore_index=True)
 leaderboard = leaderboard.sort_values('accuracy', ascending=False)
 leaderboard.to_csv(leaderboard_file, index=False)
 
-print("\n📊 CURRENT LEADERBOARD:")
+print("\n📊 UPDATED LEADERBOARD:")
+print("=" * 60)
 print(leaderboard[['user_id', 'model_name', 'accuracy']].to_string(index=False))
 
 # ============================================================
-# STEP 6: AUTO PUSH TO GITHUB (THIS IS KEY!)
+# STEP 6: GIT PUSH (FIXED VERSION)
 # ============================================================
 print("\n" + "=" * 60)
-print("📤 AUTO-PUSHING TO GITHUB...")
+print("📤 PUSHING TO GITHUB...")
 print("=" * 60)
 
+# Configure git if not already configured
 try:
-    # Add the changed file
+    # Check if git is configured
+    subprocess.run(["git", "config", "user.name"], check=True, capture_output=True)
+except:
+    print("⚙️ Setting up git configuration...")
+    subprocess.run(["git", "config", "user.name", "Student"], check=False)
+    subprocess.run(["git", "config", "user.email", "student@example.com"], check=False)
+
+try:
+    # Add the file
     subprocess.run(["git", "add", "leaderboard.csv"], check=True, capture_output=True)
     
-    # Commit the change
-    commit_message = f"Add {user_name}: {best_accuracy:.4f} with {best_model_name}"
-    subprocess.run(["git", "commit", "-m", commit_message], check=True, capture_output=True)
+    # Commit
+    commit_msg = f"Add {user_name}'s submission with accuracy {best_accuracy:.4f}"
+    subprocess.run(["git", "commit", "-m", commit_msg], check=True, capture_output=True)
     
-    # Push to GitHub
-    result = subprocess.run(["git", "push"], check=True, capture_output=True, text=True)
+    # Push
+    result = subprocess.run(["git", "push"], capture_output=True, text=True)
     
-    print("\n✅ SUCCESS! Your results have been pushed to GitHub!")
-    print(f"🔗 View leaderboard at: https://github.com/neetasharma05/employee-attrition-leaderboard")
-    
+    if result.returncode == 0:
+        print("\n✅ SUCCESS! Results pushed to GitHub!")
+        print("🔗 https://github.com/neetasharma05/employee-attrition-leaderboard")
+    else:
+        print("\n⚠️ Push failed. You may need to:")
+        print("   1. Run: git push")
+        print("   2. Or share the leaderboard.csv file manually")
+        
 except subprocess.CalledProcessError as e:
-    print("\n⚠️ Note: Auto-push requires git to be configured.")
-    print("   The leaderboard CSV has been saved locally.")
-    print("   Your professor can manually push with: git push")
+    print("\n⚠️ Could not auto-push. The leaderboard was saved locally.")
+    print("📁 leaderboard.csv has been updated in your folder")
+    print("\n📌 To manually push to GitHub, run these commands:")
+    print("   git add leaderboard.csv")
+    print("   git commit -m 'Update leaderboard'")
+    print("   git push")
     
 print("\n" + "=" * 60)
 print("🎉 COMPLETE!")
