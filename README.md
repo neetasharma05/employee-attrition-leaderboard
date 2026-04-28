@@ -24,7 +24,7 @@ This project predicts employee attrition using the IBM HR Analytics dataset.
 - Tanvi Thorat  
 - Omkar Mate
 
-### Option 1: Google Colab (Recommended - No Installation)
+## Option 1: Google Colab (Recommended - No Installation)
 1. Click this link: [Open in Colab](https://colab.research.google.com/)
 2. Upload the notebook or copy the code from `employee_attrition_analysis.py`
 3. Run all cells (Runtime → Run all)
@@ -43,5 +43,5 @@ pip install -r requirements.txt
 # Run the script
 python employee_attrition_analysis.py
 
-## GitHub Repository
+# GitHub Repository
 This leaderboard is automatically updated with every submission.
