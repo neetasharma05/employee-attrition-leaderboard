@@ -8,11 +8,6 @@ This project predicts employee attrition using the IBM HR Analytics dataset.
 - **Size**: 1,470 employees, 35 features
 - **Target**: Attrition (Yes/No)
 
-## Leaderboard
-| Rank | User | Model | Accuracy | F1-Score | Submitted |
-|------|------|-------|----------|----------|-----------|
-| 1 | neeta  | Logistic Regression | 0.8605 | 0.2807 | 2026-04-24 19:01:22 |
-
 
 ## Best Model Performance
 - **Best Accuracy**: 0.8605
